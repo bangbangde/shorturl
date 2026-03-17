@@ -1,0 +1,10 @@
+.git
+.gitignore
+.next
+.qoder
+node_modules
+data
+*.md
+.env*
+.vscode
+.idea
