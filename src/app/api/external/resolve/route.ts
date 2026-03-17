@@ -46,24 +46,12 @@ export async function POST(request: Request) {
       return corsJsonResponse({ success: false, error: "Short link has expired" }, 410);
     }
 
-    let uaRules = [];
-    try {
-      uaRules = link.ua_rules ? JSON.parse(link.ua_rules) : [];
-    } catch { /* ignore parse error */ }
-
     return corsJsonResponse({
       success: true,
       data: {
         targetUrl: link.target_url,
         shortCode: link.short_code,
         status: link.status,
-        antiban: {
-          enableIntermediate: !!link.enable_intermediate,
-          intermediateType: link.intermediate_type,
-          intermediateContent: link.intermediate_content,
-          enableUaDetection: !!link.enable_ua_detection,
-          uaRules,
-        },
       },
     });
   } catch (e) {

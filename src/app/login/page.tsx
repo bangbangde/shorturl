@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,7 +20,7 @@ export default function LoginPage() {
       const data = await res.json();
       if (data.success) {
         localStorage.setItem("token", data.data.token);
-        router.push("/");
+        window.location.href = "/";
       } else {
         toast.error(data.error || "登录失败");
       }
@@ -37,7 +35,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-muted">
       <div className="w-full max-w-sm bg-card rounded-lg shadow-lg p-8">
         <h1 className="text-2xl font-bold text-center mb-2">短链管理系统</h1>
-        <p className="text-muted-foreground text-center text-sm mb-6">电商防封推广短链管理</p>
+        <p className="text-muted-foreground text-center text-sm mb-6">短链推广管理</p>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1">用户名</label>

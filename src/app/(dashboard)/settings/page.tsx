@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Eye, EyeOff, RefreshCw, Save, Plus, Trash2 } from "lucide-react";
-import type { UaRule } from "@/types";
+import { Eye, EyeOff, RefreshCw, Save } from "lucide-react";
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<Record<string, string>>({});
@@ -17,18 +16,12 @@ export default function SettingsPage() {
   // HMAC secret visibility
   const [showSecret, setShowSecret] = useState(false);
 
-  // Default UA rules
-  const [defaultUaRules, setDefaultUaRules] = useState<UaRule[]>([]);
-
   useEffect(() => {
     fetch("/api/admin/settings")
       .then((r) => r.json())
       .then((res) => {
         if (res.success) {
           setSettings(res.data);
-          try {
-            setDefaultUaRules(JSON.parse(res.data.default_ua_rules || "[]"));
-          } catch { /* ignore */ }
         }
       })
       .finally(() => setLoading(false));
@@ -62,10 +55,7 @@ export default function SettingsPage() {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        settings: {
-          ...settings,
-          default_ua_rules: JSON.stringify(defaultUaRules),
-        },
+        settings,
       }),
     });
     const data = await res.json();
@@ -82,16 +72,6 @@ export default function SettingsPage() {
     let secret = "";
     for (let i = 0; i < 32; i++) secret += chars.charAt(Math.floor(Math.random() * chars.length));
     setSettings({ ...settings, hmac_secret: secret });
-  };
-
-  const addDefaultRule = () => {
-    setDefaultUaRules([...defaultUaRules, { name: "", pattern: "", action: "show_tip", tipContent: "" }]);
-  };
-  const removeDefaultRule = (i: number) => {
-    setDefaultUaRules(defaultUaRules.filter((_, idx) => idx !== i));
-  };
-  const updateDefaultRule = (i: number, field: keyof UaRule, value: string) => {
-    setDefaultUaRules(defaultUaRules.map((r, idx) => (idx === i ? { ...r, [field]: value } : r)));
   };
 
   if (loading) return <div className="text-muted-foreground">加载中...</div>;
@@ -157,32 +137,6 @@ export default function SettingsPage() {
             className="w-32 px-3 py-2 text-sm border border-border rounded-md"
           />
           <p className="text-xs text-muted-foreground mt-1">推荐 6 位，取值范围 4-12</p>
-        </div>
-      </div>
-
-      {/* Default UA Rules */}
-      <div className="bg-card rounded-lg border border-border p-5 space-y-4">
-        <h3 className="font-medium">默认 UA 检测规则</h3>
-        <p className="text-sm text-muted-foreground">创建短链时默认使用的 UA 检测规则</p>
-        <div className="space-y-2">
-          {defaultUaRules.map((rule, i) => (
-            <div key={i} className="flex gap-2 items-start">
-              <input type="text" value={rule.name} onChange={(e) => updateDefaultRule(i, "name", e.target.value)} className="w-20 px-2 py-1.5 text-sm border border-border rounded-md" placeholder="名称" />
-              <input type="text" value={rule.pattern} onChange={(e) => updateDefaultRule(i, "pattern", e.target.value)} className="w-40 px-2 py-1.5 text-sm border border-border rounded-md font-mono" placeholder="UA匹配" />
-              <select value={rule.action} onChange={(e) => updateDefaultRule(i, "action", e.target.value)} className="px-2 py-1.5 text-sm border border-border rounded-md">
-                <option value="show_tip">显示提示</option>
-                <option value="redirect_other">跳转其他</option>
-                <option value="block">阻止访问</option>
-              </select>
-              <input type="text" value={rule.tipContent || ""} onChange={(e) => updateDefaultRule(i, "tipContent", e.target.value)} className="flex-1 px-2 py-1.5 text-sm border border-border rounded-md" placeholder="提示内容" />
-              <button type="button" onClick={() => removeDefaultRule(i)} className="p-1.5 hover:bg-red-50 text-red-500 rounded">
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          ))}
-          <button type="button" onClick={addDefaultRule} className="flex items-center gap-1 text-sm text-primary hover:underline">
-            <Plus className="w-3.5 h-3.5" /> 添加规则
-          </button>
         </div>
       </div>
 

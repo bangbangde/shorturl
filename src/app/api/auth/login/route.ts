@@ -28,9 +28,11 @@ export async function POST(request: Request) {
       data: { token, username: user.username },
     });
 
+    const proto = request.headers.get("x-forwarded-proto") || new URL(request.url).protocol.slice(0, -1);
+
     response.cookies.set("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: proto === "https",
       sameSite: "lax",
       maxAge: 86400, // 24h
       path: "/",

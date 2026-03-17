@@ -1,5 +1,4 @@
 import { run, queryOne } from "@/lib/db";
-import { detectUA } from "@/lib/ua-detector";
 
 interface LogInput {
   linkId: number;
@@ -11,22 +10,15 @@ interface LogInput {
 }
 
 export function recordAccessLog(input: LogInput): void {
-  const ua = input.userAgent || "";
-  const detected = detectUA(ua);
-
   run(
-    `INSERT INTO access_logs (link_id, short_code, ip, user_agent, referer, platform, device_type, os, browser, action_taken)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO access_logs (link_id, short_code, ip, user_agent, referer, action_taken)
+     VALUES (?, ?, ?, ?, ?, ?)`,
     [
       input.linkId,
       input.shortCode,
       input.ip || null,
       input.userAgent || null,
       input.referer || null,
-      detected.platform,
-      detected.deviceType,
-      detected.os,
-      detected.browser,
       input.actionTaken || "redirect",
     ]
   );

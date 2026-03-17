@@ -82,22 +82,16 @@ export function listLinks(params: ListLinksParams = {}): PaginatedResponse<Link>
 
 export function createLink(input: LinkCreateInput): Link {
   const shortCode = input.short_code || generateUniqueCode();
-  const uaRulesJson = input.ua_rules ? JSON.stringify(input.ua_rules) : null;
 
   const result = run(
-    `INSERT INTO links (short_code, target_url, title, group_id, status, enable_intermediate, intermediate_type, intermediate_content, enable_ua_detection, ua_rules, expire_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO links (short_code, target_url, title, group_id, status, expire_at)
+     VALUES (?, ?, ?, ?, ?, ?)`,
     [
       shortCode,
       input.target_url,
       input.title || null,
       input.group_id || null,
       input.status || "active",
-      input.enable_intermediate ? 1 : 0,
-      input.intermediate_type || "browser_tip",
-      input.intermediate_content || null,
-      input.enable_ua_detection !== false ? 1 : 0,
-      uaRulesJson,
       input.expire_at || null,
     ]
   );
@@ -116,11 +110,6 @@ export function updateLink(id: number, input: Partial<LinkCreateInput>): Link | 
   if (input.title !== undefined) { fields.push("title = ?"); values.push(input.title || null); }
   if (input.group_id !== undefined) { fields.push("group_id = ?"); values.push(input.group_id || null); }
   if (input.status !== undefined) { fields.push("status = ?"); values.push(input.status); }
-  if (input.enable_intermediate !== undefined) { fields.push("enable_intermediate = ?"); values.push(input.enable_intermediate ? 1 : 0); }
-  if (input.intermediate_type !== undefined) { fields.push("intermediate_type = ?"); values.push(input.intermediate_type); }
-  if (input.intermediate_content !== undefined) { fields.push("intermediate_content = ?"); values.push(input.intermediate_content || null); }
-  if (input.enable_ua_detection !== undefined) { fields.push("enable_ua_detection = ?"); values.push(input.enable_ua_detection ? 1 : 0); }
-  if (input.ua_rules !== undefined) { fields.push("ua_rules = ?"); values.push(input.ua_rules ? JSON.stringify(input.ua_rules) : null); }
   if (input.expire_at !== undefined) { fields.push("expire_at = ?"); values.push(input.expire_at || null); }
 
   if (fields.length === 0) return existing;

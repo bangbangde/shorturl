@@ -24,11 +24,6 @@ export interface Link {
   title: string | null;
   group_id: number | null;
   status: "active" | "paused" | "expired";
-  enable_intermediate: number;
-  intermediate_type: "browser_tip" | "custom_html";
-  intermediate_content: string | null;
-  enable_ua_detection: number;
-  ua_rules: string | null;
   expire_at: string | null;
   pv_count: number;
   uv_count: number;
@@ -58,16 +53,6 @@ export interface Setting {
   updated_at: string;
 }
 
-// ===== UA Rules =====
-
-export interface UaRule {
-  name: string;
-  pattern: string;
-  action: "show_tip" | "redirect_other" | "block";
-  tipContent?: string;
-  redirectUrl?: string;
-}
-
 // ===== API Types =====
 
 export interface ApiResponse<T = unknown> {
@@ -91,11 +76,6 @@ export interface LinkCreateInput {
   short_code?: string;
   group_id?: number;
   status?: string;
-  enable_intermediate?: boolean;
-  intermediate_type?: string;
-  intermediate_content?: string;
-  enable_ua_detection?: boolean;
-  ua_rules?: UaRule[];
   expire_at?: string;
 }
 
@@ -146,13 +126,6 @@ export interface ResolveResponse {
   targetUrl: string;
   shortCode: string;
   status: string;
-  antiban: {
-    enableIntermediate: boolean;
-    intermediateType: string;
-    intermediateContent: string | null;
-    enableUaDetection: boolean;
-    uaRules: UaRule[];
-  };
 }
 
 export interface LogReportRequest {

@@ -51,12 +51,6 @@ function initializeDatabase(database: Database.Database) {
   const defaultSettings = [
     ["hmac_secret", generateRandomSecret()],
     ["short_code_length", "6"],
-    ["default_ua_rules", JSON.stringify([
-      { name: "微信", pattern: "MicroMessenger", action: "show_tip", tipContent: "请点击右上角，选择在浏览器中打开" },
-      { name: "QQ", pattern: "QQ/", action: "show_tip", tipContent: "请点击右上角，选择在浏览器中打开" },
-    ])],
-    ["default_intermediate_enabled", "0"],
-    ["default_intermediate_html", "<html><body><h2>请在浏览器中打开此链接</h2></body></html>"],
   ];
 
   const insertSetting = database.prepare(
