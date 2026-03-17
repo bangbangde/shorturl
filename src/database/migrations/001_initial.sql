@@ -1,3 +1,6 @@
+-- Migration 001: Initial schema
+-- Creates all base tables and indexes
+
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   username TEXT NOT NULL UNIQUE,
@@ -21,6 +24,11 @@ CREATE TABLE IF NOT EXISTS links (
   title TEXT,
   group_id INTEGER REFERENCES groups(id) ON DELETE SET NULL,
   status TEXT DEFAULT 'active' CHECK(status IN ('active', 'paused', 'expired')),
+  enable_intermediate INTEGER DEFAULT 0,
+  intermediate_type TEXT DEFAULT 'browser_tip' CHECK(intermediate_type IN ('browser_tip', 'custom_html')),
+  intermediate_content TEXT,
+  enable_ua_detection INTEGER DEFAULT 1,
+  ua_rules TEXT,
   expire_at TEXT,
   pv_count INTEGER DEFAULT 0,
   uv_count INTEGER DEFAULT 0,

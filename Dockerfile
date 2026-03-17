@@ -28,8 +28,8 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
-# Copy database schema (needed for auto-initialization at runtime)
-COPY --from=builder /app/src/database/schema.sql ./src/database/schema.sql
+# Copy database migrations (needed for auto-migration at runtime)
+COPY --from=builder /app/src/database/migrations ./src/database/migrations
 
 # Copy native better-sqlite3 module
 COPY --from=deps /app/node_modules/better-sqlite3 ./node_modules/better-sqlite3

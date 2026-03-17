@@ -1,6 +1,7 @@
 import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
+import { runMigrations } from "./migrate";
 
 const DB_PATH = process.env.DATABASE_PATH || path.join(process.cwd(), "data", "shorturl.db");
 
@@ -14,40 +15,29 @@ export function getDb(): Database.Database {
     fs.mkdirSync(dir, { recursive: true });
   }
 
-  const isNew = !fs.existsSync(DB_PATH);
   db = new Database(DB_PATH);
 
   db.pragma("journal_mode = WAL");
   db.pragma("foreign_keys = ON");
 
-  if (isNew) {
-    initializeDatabase(db);
-  } else {
-    // Ensure tables exist even if DB file exists but is empty
-    const tableCheck = db.prepare(
-      "SELECT name FROM sqlite_master WHERE type='table' AND name='users'"
-    ).get();
-    if (!tableCheck) {
-      initializeDatabase(db);
-    }
-  }
+  // Run pending migrations (handles both new and existing databases)
+  runMigrations(db);
+
+  // Seed initial data (idempotent via INSERT OR IGNORE)
+  seedData(db);
 
   return db;
 }
 
-function initializeDatabase(database: Database.Database) {
-  const schemaPath = path.join(process.cwd(), "src", "database", "schema.sql");
-  const schema = fs.readFileSync(schemaPath, "utf-8");
-  database.exec(schema);
-
-  // Seed default admin user (password: admin123)
+function seedData(database: Database.Database) {
+  // Default admin user (password: admin123)
   const bcrypt = require("bcryptjs");
   const hash = bcrypt.hashSync("admin123", 10);
   database.prepare(
     "INSERT OR IGNORE INTO users (username, password_hash) VALUES (?, ?)"
   ).run("admin", hash);
 
-  // Seed default settings
+  // Default settings
   const defaultSettings = [
     ["hmac_secret", generateRandomSecret()],
     ["short_code_length", "6"],
